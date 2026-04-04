@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐎 2026 NMJL Hand Tracker 🐎</title>
+<style>
+:root{--bg:#f5f6fa;--card:#fff;--line:#d8dce7;--text:#111827;--muted:#5b6476;--blue:#243b73;--green:#179348;--red:#cf3344;--purple:#6d28d9;--gold:#b7791f;--shadow:0 10px 24px rgba(17,24,39,.08)}
+*{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+.topbar{position:sticky;top:0;z-index:1000;background:rgba(245,246,250,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);box-shadow:0 2px 12px rgba(17,24,39,.05)}
+
+.topbar-title{
+  text-align:center;
+  font-weight:800;
+  font-size:1.18rem;
+  letter-spacing:.01em;
+  color:var(--blue);
+  padding:10px 12px 4px;
+}
+.topbar-search{
+  padding:0 12px 8px;
+}
+.topbar-search input{
+  width:100%;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  font-size:14px;
+  background:#fff;
+}
+.topbar-buttons{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:0 12px 10px;
+}
+
+.topbar-inner{max-width:920px;margin:0 auto;padding:10px 14px 8px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.title{font-weight:800;font-size:1.1rem;letter-spacing:.01em;color:var(--blue)} .reset{
+  background:#2563eb;
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+}
+.reset:last-child{
+  background:#dc2626;
+}
+.reset:active{
+  transform:scale(0.96);
+}
+.page{max-width:920px;margin:0 auto;padding:12px 12px 28px}
+.helper{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;color:var(--muted);font-size:12px;line-height:1.35;margin-bottom:12px;white-space:normal;overflow-wrap:anywhere;word-break:break-word;box-shadow:var(--shadow)}
+.credit{display:block;color:var(--purple);margin-top:2px}
+.section{margin:14px 0 18px} .section-title{position:sticky;top:48px;z-index:900;background:linear-gradient(180deg,rgba(245,246,250,.98),rgba(245,246,250,.92));padding:8px 2px 6px;margin:0 0 8px;font-size:1.15rem;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:var(--blue)}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 12px 11px;margin-bottom:10px;box-shadow:var(--shadow)}
+.row.checked{background:#e7e7eb} .box{width:24px;height:24px;margin-top:2px;accent-color:var(--blue)} .main{min-width:0}
+.hand{font-size:1.24rem;line-height:1.22;font-weight:800;letter-spacing:.01em;overflow-wrap:anywhere;word-break:break-word} .exp{margin-top:6px;font-size:.98rem;line-height:1.3;color:var(--muted)} .val{min-width:54px;text-align:right;font-size:1.22rem;line-height:1.2;font-weight:900;color:var(--red);white-space:nowrap;padding-top:2px} .val.c{color:var(--gold)}
+.green{color:var(--green)} .red{color:var(--red)} .blue{color:var(--blue)} .dark{color:#1f2937} .or{color:#8a90a0;font-weight:700;font-size:.88em;white-space:nowrap}
+.row.checked .hand,.row.checked .exp,.row.checked .val{opacity:.6;text-decoration:line-through;text-decoration-thickness:1.2px}
+.fireworks-overlay{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:3000} .firework-particle{position:absolute;width:8px;height:8px;border-radius:999px;opacity:0;animation:firework-burst 1400ms ease-out forwards}
+.celebrate-banner{position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:3001;background:rgba(255,255,255,.96);border:2px solid #e5e7eb;border-radius:16px;padding:12px 18px;font-size:22px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.12);opacity:0;animation:banner-pop 1800ms ease-in-out forwards}
+@keyframes firework-burst{0%{transform:translate(0,0) scale(.2);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}} @keyframes banner-pop{0%{opacity:0;transform:translateX(-50%) scale(.85)}12%{opacity:1;transform:translateX(-50%) scale(1)}88%{opacity:1;transform:translateX(-50%) scale(1)}100%{opacity:0;transform:translateX(-50%) scale(.95)}}
+@media (max-width:640px){
+.topbar-title{
+  text-align:center;
+  font-weight:800;
+  font-size:1.18rem;
+  letter-spacing:.01em;
+  color:var(--blue);
+  padding:10px 12px 4px;
+}
+.topbar-search{
+  padding:0 12px 8px;
+}
+.topbar-search input{
+  width:100%;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  font-size:14px;
+  background:#fff;
+}
+.topbar-buttons{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:0 12px 10px;
+}
+
+.topbar-inner{padding:9px 10px 7px} .title{font-size:1rem} .page{padding:10px 8px 24px} .section-title{top:45px;font-size:1.05rem} .row{gap:10px;padding:11px 10px} .box{width:26px;height:26px} .hand{font-size:1.12rem} .exp{font-size:.92rem} .val{font-size:1.08rem;min-width:48px}}
+</style></head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">🐎 2026 NMJL Hand Tracker 🐎</div>
+  <div class="topbar-search">
+    <input id="searchBox" placeholder="Search hands or descriptions..."
+      oninput="filterRows()">
+  </div>
+  <div class="topbar-buttons">
+    <button class="reset" onclick="undoLast()">undo</button>
+    <button class="reset" onclick="resetAll()">clear all</button>
+  </div>
+</div>
+
+<div class="page">
+<div class="helper">Progress saves automatically in your browser using local storage<span class="credit"><span style="display:block;text-align:center;color:purple;">🀄️ Created by Ashley Hall 🀄️</span></span></div>
+<div id="app"></div></div>
+<div id="fireworksOverlay" class="fireworks-overlay"></div>
+<script>
+const sections = [{"title": "2026", "rows": [{"hand": "<span class=\"green\">222</span> <span class=\"blue\">000</span> <span class=\"red\">2222 6666</span>", "exp": "Any 2 Suits", "val": "X 25"}, {"hand": "<span class=\"green\">2026 DDD</span> <span class=\"red\">2222 DDD</span>", "exp": "Any 2 Suits w Matching Dragons, Kong 2 or 6", "val": "X 25"}, {"hand": "<span class=\"blue\">FFF</span> <span class=\"green\">2026</span> <span class=\"red\">222</span> <span class=\"blue\">6666</span>", "exp": "Any 3 Suits", "val": "X 25"}, {"hand": "<span class=\"green\">22</span> <span class=\"blue\">00</span> <span class=\"red\">222 666</span> <span class=\"dark\">NEWS</span>", "exp": "Any 2 Suits", "val": "X 30"}]}, {"title": "2468", "rows": [{"hand": "<span class=\"blue\">222 444 6666 8888</span> <span class=\"or\">—or—</span> <span class=\"green\">222 444</span> <span class=\"red\">6666 8888</span>", "exp": "Any 1 or 2 Suits", "val": "X 25"}, {"hand": "<span class=\"blue\">FF</span> <span class=\"green\">2222</span> <span class=\"red\">44 66</span> <span class=\"green\">8888</span>", "exp": "Any 2 Suits", "val": "X 30"}, {"hand": "<span class=\"dark\">EE</span> <span class=\"blue\">22 444 666 88 WW</span>", "exp": "Any 1 Suit, East and West Only", "val": "X 30"}, {"hand": "<span class=\"green\">2222 DDD</span> <span class=\"red\">8888 DDD</span>", "exp": "Any 2 Suits w Matching Dragons, These Nos. Only", "val": "X 25"}, {"hand": "<span class=\"blue\">FFF 22 44 666 8888</span>", "exp": "Any 1 Suit", "val": "X 25"}, {"hand": "<span class=\"green\">2468</span> <span class=\"red\">2222 D</span> <span class=\"blue\">2222 D</span>", "exp": "Any 3 Suits, Like Kongs 2, 4, 6 or 8 w Matching Dragon", "val": "X 25"}, {"hand": "<span class=\"blue\">FFF</span> <span class=\"green\">2468</span> <span class=\"blue\">FFF</span> <span class=\"red\">2222</span>", "exp": "Any 2 Suits, Kong 2, 4, 6 or 8", "val": "X 30"}, {"hand": "<span class=\"blue\">FF</span> <span class=\"green\">246 888</span> <span class=\"red\">246 888</span>", "exp": "Any 2 Suits", "val": "C 30"}]}, {"title": "Any Like Numbers", "rows": [{"hand": "<span class=\"green\">1111</span> <span class=\"blue\">FFFFFF</span> <span class=\"red\">1111</span>", "exp": "Any 2 Suits", "val": "X 30"}, {"hand": "<span class=\"green\">1111 D</span> <span class=\"red\">111 D</span> <span class=\"blue\">1111 D</span>", "exp": "Any 3 Suits w Matching Dragon", "val": "X 25"}, {"hand": "<span class=\"blue\">FF</span> <span class=\"green\">1111</span> <span class=\"red\">11</span> <span class=\"blue\">1111</span> <span class=\"green\">DD</span>", "exp": "Any 3 Suits w Any Dragon", "val": "X 25"}]}, {"title": "Quints", "rows": [{"hand": "<span class=\"green\">11111</span> <span class=\"red\">1111</span> <span class=\"blue\">11111</span>", "exp": "Any 3 Suits, Any Like Nos.", "val": "X 40"}, {"hand": "<span class=\"blue\">FF 11111 22 33333</span>", "exp": "Any 1 Suit, Any 3 Consec. Nos.", "val": "X 45"}, {"hand": "<span class=\"green\">11111 44444</span> <span class=\"red\">DDDD</span>", "exp": "Any 2 Nos. in Any 1 Suit w Opp. Dragon", "val": "X 40"}]}, {"title": "Consecutive Run", "rows": [{"hand": "<span class=\"blue\">11 222 33 444 5555</span> <span class=\"or\">—or—</span> <span class=\"blue\">55 666 77 888 9999</span>", "exp": "Any 1 Suit, These Nos. Only", "val": "X 25"}, {"hand": "<span class=\"blue\">FFF 1111 234 5555</span> <span class=\"or\">—or—</span> <span class=\"green\">FFF 1111</span> <span class=\"red\">234</span> <span class=\"green\">5555</span>", "exp": "Any 1 or 2 Suits, Any 5 Consec. Nos.", "val": "X 25"}, {"hand": "<span class=\"green\">11 22</span> <span class=\"red\">111 222</span> <span class=\"blue\">3333</span>", "exp": "Any 3 Suits, Any 3 Consec. Nos.", "val": "X 25"}, {"hand": "<span class=\"blue\">111 222 3333 4444</span> <span class=\"or\">—or—</span> <span class=\"green\">111 222</span> <span class=\"red\">3333 4444</span>", "exp": "Any 1 or 2 Suits, Any 4 Consec. Nos.", "val": "X 25"}, {"hand": "<span class=\"blue\">FF 11 22 333 DDDD</span> <span class=\"or\">—or—</span> <span class=\"green\">FF 11</span> <span class=\"red\">22</span> <span class=\"green\">333</span> <span class=\"red\">DDDD</span>", "exp": "1 or 2 Suits, Any Run, Ds Match Middle No.", "val": "X 25"}, {"hand": "<span class=\"blue\">1111 FFFFFF 2222</span>", "exp": "Any 1 Suit, Any 2 Consec. Nos.", "val": "X 30"}, {"hand": "<span class=\"blue\">FF 1111 2222 3333</span> <span class=\"or\">—or—</span> <span class=\"green\">FF 1111</span> <span class=\"red\">2222</span> <span class=\"blue\">3333</span>", "exp": "Any 1 or 3 Suits, Any 3 Consec. Nos.", "val": "X 25"}, {"hand": "<span class=\"green\">1 22 333</span> <span class=\"red\">1 22 333</span> <span class=\"blue\">44</span>", "exp": "Any 3 Suits, Any 4 Consec. Nos.", "val": "C 35"}]}, {"title": "13579", "rows": [{"hand": "<span class=\"blue\">11 333 55 777 9999</span> <span class=\"or\">—or—</span> <span class=\"green\">11 333</span> <span class=\"red\">55 777</span> <span class=\"blue\">9999</span>", "exp": "Any 1 or 3 Suits", "val": "X 25"}, {"hand": "<span class=\"green\">111 333</span> <span class=\"red\">3333 5555</span> <span class=\"or\">—or—</span> <span class=\"green\">555 777</span> <span class=\"red\">7777 9999</span>", "exp": "Any 2 Suits", "val": "X 25"}, {"hand": "<span class=\"dark\">NN</span> <span class=\"blue\">1111 33 5555</span> <span class=\"dark\">SS</span> <span class=\"or\">—or—</span> <span class=\"dark\">NN</span> <span class=\"blue\">5555 77 9999</span> <span class=\"dark\">SS</span>", "exp": "Any 1 Suit, North and South Only", "val": "X 30"}, {"hand": "<span class=\"green\">113579</span> <span class=\"red\">1111</span> <span class=\"blue\">1111</span>", "exp": "Any 3 Suits, Pair Any Odd No., Kongs Match Pair", "val": "X 25"}, {"hand": "<span class=\"blue\">FFF 11 33 555 DDDD</span> <span class=\"or\">—or—</span> <span class=\"blue\">FFF 55 77 999 DDDD</span>", "exp": "Any 1 Suit w Matching Dragon", "val": "X 25"}, {"hand": "<span class=\"green\">11 33</span> <span class=\"red\">111 333</span> <span class=\"blue\">5555</span> <span class=\"or\">—or—</span> <span class=\"green\">55 77</span> <span class=\"red\">555 777</span> <span class=\"blue\">9999</span>", "exp": "Any 3 Suits", "val": "X 25"}, {"hand": "<span class=\"blue\">1111 33 55 77 9999</span> <span class=\"or\">—or—</span> <span class=\"green\">1111</span> <span class=\"red\">33 55 77</span> <span class=\"green\">9999</span>", "exp": "Any 1 or 2 Suits", "val": "X 30"}, {"hand": "<span class=\"blue\">FF</span> <span class=\"green\">11 33 55</span> <span class=\"red\">111 111</span> <span class=\"or\">—or—</span> <span class=\"blue\">FF</span> <span class=\"green\">55 77 99</span> <span class=\"red\">555 555</span>", "exp": "Any 3 Suits, These Nos. Only", "val": "C 35"}, {"hand": "<span class=\"green\">FF 135 777 999</span> <span class=\"red\">DDD</span>", "exp": "Any 1 Suit w Opp. Dragon", "val": "C 30"}]}, {"title": "Winds - Dragons", "rows": [{"hand": "<span class=\"dark\">NNNN EEE WWW SSSS</span> <span class=\"or\">—or—</span> <span class=\"dark\">NNN EEEE WWWW SSS</span>", "exp": "", "val": "X 25"}, {"hand": "<span class=\"blue\">1234</span> <span class=\"green\">DDD</span> <span class=\"red\">DDD</span> <span class=\"blue\">DDDD</span>", "exp": "Any 4 Consec. Nos. in Any 1 Suit, Any 3 Dragons", "val": "X 25"}, {"hand": "<span class=\"dark\">NNN</span> <span class=\"green\">1111</span> <span class=\"red\">1111</span> <span class=\"dark\">SSS</span>", "exp": "Any Like Odd Nos. in Any 2 Suits", "val": "X 25"}, {"hand": "<span class=\"dark\">EEE</span> <span class=\"green\">2222</span> <span class=\"red\">2222</span> <span class=\"dark\">WWWW</span>", "exp": "Any Like Even Nos. in Any 2 Suits", "val": "X 25"}, {"hand": "<span class=\"blue\">FFF</span> <span class=\"dark\">NNNN</span> <span class=\"blue\">FFF</span> <span class=\"dark\">DDDD</span>", "exp": "Any Wind, Any Dragon", "val": "X 25"}, {"hand": "<span class=\"blue\">1</span> <span class=\"dark\">N</span> <span class=\"blue\">2</span> <span class=\"dark\">EE</span> <span class=\"blue\">3</span> <span class=\"dark\">WWW</span> <span class=\"blue\">4</span> <span class=\"dark\">SSSS</span>", "exp": "Any 1 Suit, These Nos. Only", "val": "X 25"}, {"hand": "<span class=\"blue\">FF</span> <span class=\"dark\">NNNN SSSS</span> <span class=\"green\">DD</span> <span class=\"red\">DD</span> <span class=\"or\">—or—</span> <span class=\"blue\">FF</span> <span class=\"dark\">EEEE WWWW</span> <span class=\"green\">DD</span> <span class=\"red\">DD</span>", "exp": "Any 2 Dragons", "val": "X 25"}, {"hand": "<span class=\"dark\">NN EEE</span> <span class=\"blue\">2026</span> <span class=\"dark\">WWW SS</span>", "exp": "2026 Any 1 Suit", "val": "C 30"}]}, {"title": "369", "rows": [{"hand": "<span class=\"green\">333 666</span> <span class=\"red\">6666 9999</span> <span class=\"or\">—or—</span> <span class=\"green\">333 666</span> <span class=\"red\">6666</span> <span class=\"blue\">9999</span>", "exp": "Any 2 or 3 Suits", "val": "X 25"}, {"hand": "<span class=\"green\">33 66</span> <span class=\"red\">333 666</span> <span class=\"blue\">9999</span>", "exp": "Any 3 Suits", "val": "X 25"}, {"hand": "<span class=\"blue\">FFF 33 666 99 DDDD</span> <span class=\"or\">—or—</span> <span class=\"blue\">FFF</span> <span class=\"green\">33 666 99</span> <span class=\"red\">DDDD</span>", "exp": "1 Suit w Matching or Opp. Dragon", "val": "X 25"}, {"hand": "<span class=\"green\">33 66</span> <span class=\"red\">666 999</span> <span class=\"dark\">NEWS</span>", "exp": "Any 2 Suits", "val": "X 30"}, {"hand": "<span class=\"blue\">FF</span> <span class=\"green\">3369</span> <span class=\"red\">3333</span> <span class=\"blue\">3333</span>", "exp": "Any 3 Suits, Pair 3, 6, or 9, Kongs Match Pair", "val": "X 25"}, {"hand": "<span class=\"blue\">FF</span> <span class=\"green\">333 666 999</span> <span class=\"red\">369</span>", "exp": "Any 2 Suits", "val": "C 30"}]}, {"title": "Singles and Pairs", "rows": [{"hand": "<span class=\"dark\">NN EE WW SS</span> <span class=\"green\">1D</span> <span class=\"red\">1D</span> <span class=\"blue\">1D</span>", "exp": "Any 3 Suits, Any Like No. w Matching Dragon", "val": "C 50"}, {"hand": "<span class=\"green\">2 4 66 88</span> <span class=\"red\">2 4 66 88</span> <span class=\"blue\">88</span>", "exp": "Any 3 Suits, These Nos. Only", "val": "C 50"}, {"hand": "<span class=\"blue\">FF</span> <span class=\"green\">3369</span> <span class=\"red\">3669</span> <span class=\"blue\">3699</span>", "exp": "Any 3 Suits", "val": "C 50"}, {"hand": "<span class=\"blue\">11 22 33 44 55 66 77</span>", "exp": "Any 1 Suit, Any 7 Consec. Nos.", "val": "C 50"}, {"hand": "<span class=\"green\">11 357 99</span> <span class=\"red\">11 357 99</span>", "exp": "Any 2 Suits", "val": "C 50"}, {"hand": "<span class=\"blue\">FF</span> <span class=\"green\">2026</span> <span class=\"red\">2026</span> <span class=\"blue\">2026</span>", "exp": "Any 3 Suits", "val": "C 75"}]}];
+
+let undoStack = [];
+
+function saveState() {
+  const state = {};
+  document.querySelectorAll(".box").forEach((b, i) => state[i] = b.checked);
+  undoStack.push(state);
+}
+
+function undoLast() {
+  if (undoStack.length === 0) return;
+  const prev = undoStack.pop();
+  document.querySelectorAll(".box").forEach((b, i) => {
+    b.checked = prev[i] || false;
+    b.closest(".row").classList.toggle("checked", b.checked);
+  });
+}
+
+const app=document.getElementById("app"),fireworksOverlay=document.getElementById("fireworksOverlay"); let celebrationPlayed=false;
+const valueClass=v=>v.trim().startsWith("C")?"val c":"val"; const rowKey=(s,i)=>`nmjl2026::${s}::${i}`;
+function render(){app.innerHTML=""; sections.forEach(section=>{const sec=document.createElement("section"); sec.className="section"; const h=document.createElement("h2"); h.className="section-title"; h.textContent=section.title; sec.appendChild(h);
+section.rows.forEach((row,idx)=>{const item=document.createElement("label"); item.className="row"; const box=document.createElement("input"); box.type="checkbox"; box.className="box"; const key=rowKey(section.title,idx); box.checked=localStorage.getItem(key)==="true"; if(box.checked)item.classList.add("checked");
+box.addEventListener("change",()=>{ saveState();localStorage.setItem(key,box.checked); item.classList.toggle("checked",box.checked); checkForCompletion();});
+const main=document.createElement("div"); main.className="main"; const hand=document.createElement("div"); hand.className="hand"; hand.innerHTML=row.hand; const exp=document.createElement("div"); exp.className="exp"; exp.textContent=row.exp||" "; const val=document.createElement("div"); val.className=valueClass(row.val); val.textContent=row.val; main.appendChild(hand); main.appendChild(exp); item.appendChild(box); item.appendChild(main); item.appendChild(val); sec.appendChild(item);}); app.appendChild(sec);}); checkForCompletion();}
+function celebrateComplete(){fireworksOverlay.innerHTML=""; const banner=document.createElement("div"); banner.className="celebrate-banner"; banner.textContent="🎉 Card Complete! 🎉"; fireworksOverlay.appendChild(banner);
+const colors=["#ef4444","#f59e0b","#10b981","#3b82f6","#8b5cf6","#ec4899"]; for(let burst=0;burst<10;burst++){const x=8+Math.random()*84,y=10+Math.random()*60; for(let i=0;i<18;i++){const p=document.createElement("div"); p.className="firework-particle"; const angle=(Math.PI*2*i)/18,distance=30+Math.random()*70; p.style.left=x+"vw"; p.style.top=y+"vh"; p.style.background=colors[(i+burst)%colors.length]; p.style.setProperty("--dx",(Math.cos(angle)*distance)+"px"); p.style.setProperty("--dy",(Math.sin(angle)*distance)+"px"); fireworksOverlay.appendChild(p);}} setTimeout(()=>fireworksOverlay.innerHTML="",2200);}
+function checkForCompletion(){const boxes=Array.from(document.querySelectorAll(".box")); if(!boxes.length)return; const allDone=boxes.every(b=>b.checked); if(allDone&&!celebrationPlayed){celebrationPlayed=true; celebrateComplete();} else if(!allDone) celebrationPlayed=false;}
+
+function filterRows(){
+  const q = document.getElementById("searchBox").value.toLowerCase();
+  document.querySelectorAll(".row").forEach(row=>{
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(q) ? "" : "none";
+  });
+}
+
+function resetAll(){if(!confirm("Clear all progress?"))return; Object.keys(localStorage).forEach(k=>{if(k.startsWith("nmjl2026::"))localStorage.removeItem(k);}); 
+if (!localStorage.getItem("nmjl2026_initialized")) {
+  localStorage.clear();
+  localStorage.setItem("nmjl2026_initialized", "true");
+}
+
+render();}
+
+if (!localStorage.getItem("nmjl2026_initialized")) {
+  localStorage.clear();
+  localStorage.setItem("nmjl2026_initialized", "true");
+}
+
+render();
+</script></body></html>
