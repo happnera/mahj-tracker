@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NMJL 2026</title>
+<style>
+body{font-family:-apple-system;padding:10px;background:#f5f5f7}
+h1{text-align:center}
+input{width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;margin:10px 0}
+
+.buttons{display:flex;gap:10px;margin-bottom:10px}
+button{flex:1;padding:12px;border:none;border-radius:12px;font-weight:600}
+.blue{background:#007aff;color:#fff}
+.yellow{background:#ffd60a}
+.red{background:#ff3b30;color:#fff}
+
+.row{padding:15px;border-radius:15px;background:#fff;margin:10px 0;border:1px solid #ddd}
+.row.selected{background:#fff3a0}
+</style>
+</head>
+
+<body>
+
+<h1>🐎 2026 NMJL Hand Tracker 🐎</h1>
+
+<input placeholder="Search hands...">
+
+<div class="buttons">
+<button class="blue" onclick="clearCurrent()">clear current hand</button>
+<button class="yellow" onclick="help()">?</button>
+<button class="red" onclick="resetAll()">reset entire card</button>
+</div>
+
+<div id="list"></div>
+
+<script>
+
+const data = [
+"222 000 2222 6666",
+"2026 DDD 2222 DDD",
+"FFF 2026 222 6666"
+];
+
+const list = document.getElementById("list");
+
+data.forEach((text,i)=>{
+  const row = document.createElement("div");
+  row.className="row";
+
+  const box = document.createElement("input");
+  box.type="checkbox";
+
+  row.appendChild(box);
+  row.append(" "+text);
+
+  row.onclick = (e)=>{
+    if(e.target.type==="checkbox") return;
+    row.classList.toggle("selected");
+  };
+
+  list.appendChild(row);
+});
+
+function clearCurrent(){
+  document.querySelectorAll(".row.selected").forEach(r=>r.classList.remove("selected"));
+}
+
+function resetAll(){
+  if(!confirm("Are you sure? This will reset your entire card’s progress for the year.")) return;
+  document.querySelectorAll(".row").forEach(r=>{
+    r.classList.remove("selected");
+    r.querySelector("input").checked=false;
+  });
+}
+
+function help(){
+  alert("Tap row = highlight\nCheckbox = played\nClear current = remove yellow\nReset = clear everything");
+}
+
+</script>
+
+</body>
+</html>
