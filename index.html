@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 NMJL Hand Tracker</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #d8dee9;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --header: #e5e7eb;
+      --done: #d1d5db;
+      --current: #fff7cc;
+      --current-border: #d4a100;
+      --red: #ef4444;
+      --green: #22c55e;
+      --blue: #1d4ed8;
+      --black: #111827;
+      --gold: #b45309;
+      --shadow: 0 1px 2px rgba(0,0,0,.05);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 16px 14px 40px;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(245,247,251,.97);
+      backdrop-filter: blur(8px);
+      padding-bottom: 12px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.95rem;
+      text-align: center;
+    }
+    .sub {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-size: 1rem;
+    }
+    .controls,
+    .controls-2 {
+      display: grid;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .controls { grid-template-columns: 1fr auto auto; }
+    .controls-2 { grid-template-columns: 1fr 1fr auto; }
+    input[type="search"] {
+      width: 100%;
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-size: 16px;
+      background: white;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-secondary { background: white; color: var(--text); border: 1px solid var(--line); }
+    .btn-help { width: 48px; min-width: 48px; }
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .pill {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: .98rem;
+      box-shadow: var(--shadow);
+    }
+    .progress-wrap {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px 12px 12px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: .95rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 16px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #60a5fa, #2563eb);
+      transition: width .2s ease;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      justify-content: center;
+      margin: 10px 0 2px;
+      font-size: .92rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .legend span { white-space: nowrap; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .section h2 {
+      margin: 0;
+      padding: 13px 14px;
+      background: var(--header);
+      text-align: center;
+      font-size: 1.18rem;
+      letter-spacing: .01em;
+    }
+    .items { padding: 8px; }
+    .item {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 10px;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      user-select: none;
+    }
+    .item:nth-child(odd) { background: #f8fafc; }
+    .item.done { background: var(--done); }
+    .item.current {
+      background: var(--current);
+      border-color: var(--current-border);
+    }
+    .item.done.current {
+      background: linear-gradient(0deg, var(--done), var(--done)), var(--current);
+      border-color: var(--current-border);
+    }
+    .item.done .label, .item.done .value { color: #374151; }
+    .item input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+    .label {
+      font-size: 1.17rem;
+      line-height: 1.38;
+      font-weight: 800;
+      letter-spacing: .01em;
+      word-break: break-word;
+    }
+    .value {
+      font-weight: 800;
+      color: #374151;
+      white-space: nowrap;
+      padding-left: 8px;
+      font-size: 1.03rem;
+    }
+    .token, .val-token { display: inline-block; margin-right: .18em; }
+    .red { color: var(--red); }
+    .green { color: var(--green); }
+    .blue { color: var(--blue); }
+    .black { color: var(--black); }
+    .gold { color: var(--gold); }
+    .hidden { display: none !important; }
+    .footer-note {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(17,24,39,.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 100;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal {
+      max-width: 560px;
+      width: 100%;
+      background: white;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 40px rgba(0,0,0,.18);
+      overflow: hidden;
+    }
+    .modal h3 {
+      margin: 0;
+      padding: 16px 18px 10px;
+      font-size: 1.2rem;
+    }
+    .modal .body {
+      padding: 0 18px 16px;
+      line-height: 1.5;
+      color: #374151;
+    }
+    .modal .body p { margin: 0 0 10px; }
+    .modal .actions {
+      padding: 0 18px 18px;
+      display: flex;
+      justify-content: flex-end;
+    }
+    @media (max-width: 700px) {
+      .controls, .controls-2 { grid-template-columns: 1fr; }
+      .btn-help { width: 100%; }
+      h1 { font-size: 1.65rem; }
+      .label { font-size: 1.2rem; }
+      .item { grid-template-columns: 34px 1fr auto; }
+      .value { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <h1>2026 NMJL Hand Tracker</h1>
+      <div class="sub">One-column tracker with larger text, color coding, progress bar, current-hand highlight, and auto-save</div>
+
+      <div class="controls">
+        <input id="search" type="search" placeholder="Search hands, numbers, NEWS, dragons, etc." />
+        <button class="btn-secondary" id="clearSearch">Clear Search</button>
+        <button class="btn-help btn-secondary" id="helpBtn" aria-label="Help">?</button>
+      </div>
+
+      <div class="controls-2">
+        <button class="btn-secondary" id="clearCurrent">Clear Current Hand</button>
+        <button class="btn-secondary" id="clearChecks">Clear Checkmarks</button>
+        <button class="btn-primary" id="resetAll">Reset All</button>
+      </div>
+
+      <div class="stats">
+        <div class="pill"><strong id="doneCount">0</strong> completed</div>
+        <div class="pill"><strong id="totalCount">0</strong> total</div>
+        <div class="pill"><strong id="percentCount">0%</strong> done</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-top">
+          <span>Progress</span>
+          <span id="progressText">0 of 0</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="legend">
+          <span class="blue">Blue = dots / winds</span>
+          <span class="green">Green = bams / flowers</span>
+          <span class="red">Red = cracks / dragons</span>
+          <span class="gold">Gold = score values</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="footer-note">Progress and your current highlighted hand save automatically in your browser.</div>
+  </div>
+
+  <div class="modal-backdrop" id="helpModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <h3 id="helpTitle">How this tracker works</h3>
+      <div class="body">
+        <p><strong>Tap the checkbox</strong> to mark a hand complete. Completed hands stay in place and turn gray.</p>
+        <p><strong>Tap anywhere on a hand row</strong> to mark it as your current hand. It gets a yellow highlight.</p>
+        <p><strong>Clear Current Hand</strong> removes only the yellow current-hand highlight.</p>
+        <p><strong>Clear Checkmarks</strong> removes only completed checkmarks.</p>
+        <p><strong>Reset All</strong> clears both checkmarks and the current-hand highlight.</p>
+      </div>
+      <div class="actions">
+        <button class="btn-primary" id="closeHelp">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sections = [
+      { title: '2026', items: [ ['222 000 2222 6666', 'X 25'], ['2026 DDD 2222 DDD', 'X 25'], ['FFF 2026 222 6666', 'X 25'], ['22 00 222 666 NEWS', 'X 30'] ] },
+      { title: '2468', items: [ ['222 444 6666 8888', 'X 25'], ['222 444 6666 8888', 'X 25'], ['FF 2222 44 66 8888', 'X 30'], ['EE 22 444 666 88 WW', 'X 30'], ['2222 DDD 8888 DDD', 'X 25'], ['FFF 22 44 666 8888', 'X 25'], ['2468 2222 D 2222 D', 'X 25'], ['FFF 2468 FFF 2222', 'X 30'], ['FF 246 888 246 888', 'C 30'] ] },
+      { title: 'ANY LIKE NUMBERS', items: [ ['1111 FFFFFF 1111', 'X 30'], ['1111 D 111 D 1111 D', 'X 25'], ['FF 1111 11 1111 DD', 'X 25'] ] },
+      { title: 'QUINTS', items: [ ['11111 1111 11111', 'X 40'], ['FF 11111 22 33333', 'X 45'], ['11111 44444 DDDD', 'X 40'] ] },
+      { title: 'CONSECUTIVE RUN', items: [ ['11 222 33 444 5555', 'X 25'], ['55 666 77 888 9999', 'X 25'], ['FFF 1111 234 5555', 'X 25'], ['FFF 1111 234 5555', 'X 25'], ['11 22 111 222 3333', 'X 25'], ['111 222 3333 4444', 'X 25'], ['111 222 3333 4444', 'X 25'], ['FFF 11 22 333 DDDD', 'X 25'], ['FFF 11 22 333 DDDD', 'X 25'], ['1111 FFFFFF 2222', 'X 30'], ['FF 1111 2222 3333', 'X 25'], ['FF 1111 2222 3333', 'X 25'], ['1 22 333 1 22 333 44', 'C 35'] ] },
+      { title: '13579', items: [ ['11 333 55 777 9999', 'X 25'], ['11 333 55 777 9999', 'X 25'], ['111 333 3333 5555', 'X 25'], ['555 777 7777 9999', 'X 25'], ['NN 1111 33 5555 SS', 'X 30'], ['NN 5555 77 9999 SS', 'X 30'], ['113579 111 1111', 'X 25'], ['FFF 11 33 555 DDDD', 'X 25'], ['FFF 55 77 999 DDDD', 'X 25'], ['11 33 111 333 5555', 'X 25'], ['55 77 555 777 9999', 'X 25'], ['1111 33 55 77 9999', 'X 30'], ['1111 33 55 77 9999', 'X 30'], ['FF 11 33 55 111 111', 'C 35'], ['FF 55 77 99 555 555', 'C 35'], ['FF 135 777 999 DDD', 'C 30'] ] },
+      { title: 'WINDS - DRAGONS', items: [ ['NNNN EEE WWW SSSS', 'X 25'], ['NNN EEEE WWWW SSS', 'X 25'], ['1234 DDD DDD DDDD', 'X 25'], ['NNN 1111 1111 SSS', 'X 25'], ['EEE 2222 2222 WWWW', 'X 25'], ['FFF NNNN FFF DDDD', 'X 25'], ['1 N 2 EE 3 WWW 4 SSSS', 'X 25'], ['FF NNNN SSSS DD DD', 'X 25'], ['FF EEEE WWWWW DD DD', 'X 25'], ['NN EEE 2026 WWWW SS', 'C 30'] ] },
+      { title: '369', items: [ ['333 666 6666 9999', 'X 25'], ['333 666 6666 9999', 'X 25'], ['33 66 333 666 9999', 'X 25'], ['FFF 33 666 99 DDDD', 'X 25'], ['FFF 33 666 99 DDDD', 'X 25'], ['33 66 666 999 NEWS', 'X 30'], ['FF 3369 3333 3333', 'X 25'], ['FF 333 666 999 369', 'C 30'] ] },
+      { title: 'SINGLES & PAIRS', items: [ ['NN EE WW SS 1D 1D 1D', 'C 50'], ['2 4 66 88 2 4 66 88 88', 'C 50'], ['FF 3369 3669 3699', 'C 50'], ['11 22 33 44 55 66 77', 'C 50'], ['11 357 99 11 357 99', 'C 50'], ['FF 2026 2026 2026', 'C 75'] ] }
+    ];
+
+    const STORAGE_KEY = 'nmjl-2026-hand-tracker-v2';
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (!saved.done) saved.done = {};
+    if (!('current' in saved)) saved.current = null;
+
+    const grid = document.getElementById('grid');
+    const search = document.getElementById('search');
+    const doneCount = document.getElementById('doneCount');
+    const totalCount = document.getElementById('totalCount');
+    const percentCount = document.getElementById('percentCount');
+    const progressText = document.getElementById('progressText');
+    const progressFill = document.getElementById('progressFill');
+    const helpModal = document.getElementById('helpModal');
+
+    function persist() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+    }
+
+    function idFor(section, index) {
+      return `${section}__${index}`;
+    }
+
+    function suitClassForDigits(token) {
+      const digits = token.replace(/[^0-9]/g, '');
+      if (!digits) return 'black';
+      const first = digits[0];
+      if ('147'.includes(first)) return 'green';
+      if ('2580'.includes(first)) return 'red';
+      return 'blue';
+    }
+
+    function colorClass(token, isValue = false) {
+      if (/^C$/i.test(token)) return 'gold';
+      if (/^X$/i.test(token)) return isValue ? 'gold' : 'black';
+      if (/^F+$/i.test(token)) return 'green';
+      if (/^D+$/i.test(token)) return 'red';
+      if (/^[NEWS]+$/i.test(token)) return 'blue';
+      if (/^[0-9]+$/.test(token)) return suitClassForDigits(token);
+      return 'black';
+    }
+
+    function formatTokens(text, valueMode = false) {
+      return text.split(/\s+/).map(token => `<span class="${valueMode ? 'val-token' : 'token'} ${colorClass(token, valueMode)}">${token}</span>`).join(' ');
+    }
+
+    function render() {
+      grid.innerHTML = '';
+      const term = search.value.trim().toLowerCase();
+      let total = 0;
+      let done = 0;
+
+      sections.forEach(section => {
+        const sectionEl = document.createElement('section');
+        sectionEl.className = 'section';
+
+        const title = document.createElement('h2');
+        title.textContent = section.title;
+        sectionEl.appendChild(title);
+
+        const itemsWrap = document.createElement('div');
+        itemsWrap.className = 'items';
+
+        let visibleItems = 0;
+
+        section.items.forEach((item, index) => {
+          const [labelText, valueText] = item;
+          const id = idFor(section.title, index);
+          const isDone = !!saved.done[id];
+          const isCurrent = saved.current === id;
+          const haystack = `${section.title} ${labelText} ${valueText}`.toLowerCase();
+          const matches = !term || haystack.includes(term);
+
+          total += 1;
+          if (isDone) done += 1;
+
+          const row = document.createElement('label');
+          row.className = 'item' + (isDone ? ' done' : '') + (isCurrent ? ' current' : '') + (matches ? '' : ' hidden');
+          row.setAttribute('data-id', id);
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = isDone;
+          checkbox.addEventListener('click', (e) => e.stopPropagation());
+          checkbox.addEventListener('change', () => {
+            if (checkbox.checked) saved.done[id] = true;
+            else delete saved.done[id];
+            persist();
+            render();
+          });
+
+          row.addEventListener('click', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            saved.current = (saved.current === id) ? null : id;
+            persist();
+            render();
+          });
+
+          const label = document.createElement('div');
+          label.className = 'label';
+          label.innerHTML = formatTokens(labelText, false);
+
+          const value = document.createElement('div');
+          value.className = 'value';
+          value.innerHTML = formatTokens(valueText, true);
+
+          row.appendChild(checkbox);
+          row.appendChild(label);
+          row.appendChild(value);
+          itemsWrap.appendChild(row);
+
+          if (matches) visibleItems += 1;
+        });
+
+        if (visibleItems === 0) sectionEl.classList.add('hidden');
+        sectionEl.appendChild(itemsWrap);
+        grid.appendChild(sectionEl);
+      });
+
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      totalCount.textContent = total;
+      doneCount.textContent = done;
+      percentCount.textContent = `${pct}%`;
+      progressText.textContent = `${done} of ${total}`;
+      progressFill.style.width = `${pct}%`;
+    }
+
+    search.addEventListener('input', render);
+    document.getElementById('clearSearch').addEventListener('click', () => { search.value = ''; render(); });
+    document.getElementById('clearCurrent').addEventListener('click', () => { saved.current = null; persist(); render(); });
+    document.getElementById('clearChecks').addEventListener('click', () => {
+      if (!confirm('Clear all completed checkmarks?')) return;
+      saved.done = {};
+      persist();
+      render();
+    });
+    document.getElementById('resetAll').addEventListener('click', () => {
+      if (!confirm('Reset everything, including checkmarks and current hand?')) return;
+      saved.done = {};
+      saved.current = null;
+      persist();
+      render();
+    });
+
+    document.getElementById('helpBtn').addEventListener('click', () => helpModal.classList.add('show'));
+    document.getElementById('closeHelp').addEventListener('click', () => helpModal.classList.remove('show'));
+    helpModal.addEventListener('click', (e) => {
+      if (e.target === helpModal) helpModal.classList.remove('show');
+    });
+
+    render();
+  </script>
+</body>
+</html>
