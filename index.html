@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>🀄️ 2026 NMJL Hand Tracker 🀄️</title>
+<style>
+  :root{
+    --bg:#f7f7f7;
+    --card:#ffffff;
+    --line:#e2e2e2;
+    --text:#1f2937;
+    --working:#fff3a6;
+    --checked:#d9d9d9;
+    --section:#f0f0f0;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:12px 12px 40px;
+  }
+  .info-icon{
+    position:fixed;
+    top:8px;
+    left:8px;
+    z-index:9999;
+    width:36px;
+    height:36px;
+    border-radius:999px;
+    border:2px solid #666;
+    background:#fff;
+    color:#555;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    font-weight:700;
+    line-height:1;
+    box-shadow:0 2px 6px rgba(0,0,0,.18);
+    cursor:pointer;
+    user-select:none;
+  }
+  .wrap{
+    max-width:900px;
+    margin:0 auto;
+    padding-top:44px;
+  }
+  h1{
+    text-align:center;
+    margin:0 0 10px;
+    font-size:26px;
+    line-height:1.1;
+  }
+  .search{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:13px 14px;
+    font-size:18px;
+    background:#fff;
+    margin-bottom:10px;
+    text-transform:uppercase;
+  }
+  .toolbar{
+    display:flex;
+    gap:8px;
+    flex-wrap:nowrap;
+    margin:0 0 12px;
+  }
+  .btn{
+    font-size:13px;
+    white-space:normal;
+    text-align:center;
+
+    flex:1 1 0;
+    min-width:0;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:14px;
+    padding:10px 10px;
+    font-size:15px;
+    line-height:1.2;
+    white-space:nowrap;
+  }
+  .section{ margin-top:18px; }
+  .section-header{
+    background:var(--section);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:8px 12px;
+    font-size:22px;
+    font-weight:800;
+  }
+  .hand{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-top:none;
+    padding:12px 10px;
+    cursor:pointer;
+  }
+  .hand:first-of-type{
+    border-top:1px solid var(--line);
+    border-top-left-radius:12px;
+    border-top-right-radius:12px;
+  }
+  .hand:last-child{
+    border-bottom-left-radius:12px;
+    border-bottom-right-radius:12px;
+  }
+  .hand.checked{ background:var(--checked); }
+  .hand.working{ background:var(--working); }
+  .line-num{
+    min-width:24px;
+    height:24px;
+    border-radius:999px;
+    background:#ededed;
+    color:#7a7a7a;
+    font-size:14px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:2px;
+    flex:0 0 auto;
+  }
+  .check{
+    transform:scale(1.18);
+    margin-top:5px;
+    flex:0 0 auto;
+  }
+  .content{ flex:1; min-width:0; }
+  .tiles{
+    font-size:21px;
+    font-weight:700;
+    line-height:1.2;
+    word-break:break-word;
+  }
+  .desc{
+    margin-top:4px;
+    color:#50555d;
+    font-size:14px;
+    line-height:1.3;
+  }
+  .value{
+    white-space:nowrap;
+    font-size:17px;
+    font-weight:800;
+    margin-left:8px;
+    align-self:center;
+    flex:0 0 auto;
+  }
+  .x{ color:#c43737; }
+  .c{ color:#224fb8; }
+
+  @media (max-width:600px){
+    h1{
+    text-align:center; font-size:24px; }
+    .tiles{ font-size:19px; }
+    .value{ font-size:15px; }
+    .desc{ font-size:13px; }
+    .toolbar{ gap:6px; }
+    .btn{
+    font-size:13px;
+    white-space:normal;
+    text-align:center;
+ font-size:14px; padding:10px 8px; }
+  }
+
+  #celebrationOverlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.18);
+    z-index:10000;
+  }
+  #celebrationBox{
+    background:#fff;
+    border-radius:18px;
+    padding:22px 20px;
+    text-align:center;
+    box-shadow:0 8px 24px rgba(0,0,0,.18);
+    max-width:320px;
+    margin:16px;
+  }
+  #celebrationBox h2{
+    margin:0 0 8px;
+    font-size:26px;
+  }
+  #celebrationBox p{
+    margin:0;
+    font-size:16px;
+    color:#555;
+  }
+  #fireworksCanvas{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    display:none;
+  }
+
+
+  #celebrationOverlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.15);
+    z-index:10000;
+  }
+  #celebrationBox{
+    background:#fff;
+    border-radius:18px;
+    padding:24px 20px;
+    text-align:center;
+    box-shadow:0 10px 26px rgba(0,0,0,.18);
+    max-width:320px;
+    margin:16px;
+  }
+  #celebrationBox h2{
+    margin:0 0 8px;
+    font-size:28px;
+  }
+  #celebrationBox p{
+    margin:0;
+    font-size:16px;
+    color:#555;
+  }
+  #fireworksCanvas{
+    position:fixed;
+    inset:0;
+    display:none;
+    pointer-events:none;
+    z-index:9999;
+  }
+
+</style>
+</head>
+<body>
+<div class="info-icon" id="infoIcon" aria-label="Information" title="Information">i</div>
+
+<div class="wrap">
+  <h1>🀄️ 2026 NMJL Hand Tracker 🀄️</h1>
+
+  <input id="search" class="search" type="text" placeholder="SEARCH HANDS..." inputmode="text" autocapitalize="characters" />
+
+  <div class="toolbar">
+    <button class="btn" id="clearSearchBtn">Clear Search</button>
+    <button class="btn" id="clearWorkingBtn">Clear Hand</button>
+    <button class="btn" id="clearCompletedBtn">Clear Completed Hands</button>
+  </div>
+
+  <div id="app"></div>
+</div>
+
+<script>
+const sections = [
+  {name:"2026",hands:[
+    {tiles:"222 000 2222 6666",value:"X 25",desc:"Any 2 Suits"},
+    {tiles:"2026 DDD 2222 DDD",value:"X 25",desc:"Any 2 Suits with Matching Dragons"},
+    {tiles:"FFF 2026 222 6666",value:"X 25",desc:"Any 3 Suits"},
+    {tiles:"22 00 222 666 NEWS",value:"X 30",desc:"Any 2 Suits"}
+  ]},
+  {name:"2468",hands:[
+    {tiles:"222 444 6666 8888",value:"X 25",desc:"Any 1 or 2 Suits"},
+    {tiles:"FF 2222 44 66 8888",value:"X 30",desc:"Any 2 Suits"},
+    {tiles:"EE 22 444 666 88 WW",value:"X 30",desc:"Any 1 Suit"},
+    {tiles:"2222 DDD 8888 DDD",value:"X 25",desc:"Any 2 Suits with Matching Dragons"},
+    {tiles:"FFF 22 44 666 8888",value:"X 25",desc:"Any 1 Suit"},
+    {tiles:"2468 2222 D 2222 D",value:"X 25",desc:"Any 3 Suits"},
+    {tiles:"FFF 2468 FFF 2222",value:"X 25",desc:"Any 2 Suits"},
+    {tiles:"FF 246 888 246 888",value:"C 30",desc:"Any 2 Suits"}
+  ]},
+  {name:"ANY LIKE NUMBERS",hands:[
+    {tiles:"1111 FFFFFF 1111",value:"X 30",desc:"Any 2 Suits"},
+    {tiles:"1111 D 111 D 1111 D",value:"X 25",desc:"Any 3 Suits"},
+    {tiles:"FF 1111 11 1111 DD",value:"X 25",desc:"Any 3 Suits"}
+  ]},
+  {name:"QUINTS",hands:[
+    {tiles:"11111 1111 11111",value:"X 40",desc:"Any 3 Suits"},
+    {tiles:"FF 11111 22 33333",value:"X 45",desc:"Any 1 Suit"},
+    {tiles:"11111 44444 DDDD",value:"X 40",desc:"Any 1 Suit"}
+  ]},
+  {name:"CONSECUTIVE RUN",hands:[
+    {tiles:"11 222 33 444 5555",value:"X 25",desc:"Any 1 Suit"},
+    {tiles:"55 666 77 888 9999",value:"X 25",desc:"Any 1 Suit"},
+    {tiles:"11 22 111 222 3333",value:"X 25",desc:"Any 3 Suits"},
+    {tiles:"111 222 3333 4444",value:"X 25",desc:"Any 1 or 2 Suits"},
+    {tiles:"FF 11 22 333 DDDD",value:"X 25",desc:"Any Run"},
+    {tiles:"1111 FFFFFF 2222",value:"X 30",desc:"Any 1 Suit"},
+    {tiles:"FF 1111 2222 3333",value:"X 25",desc:"Any 1 or 3 Suits"},
+    {tiles:"1 22 333 1 22 333 44",value:"C 35",desc:"Any 3 Suits"}
+  ]},
+  {name:"13579",hands:[
+    {tiles:"11 333 55 777 9999",value:"X 25",desc:"Any 1 or 3 Suits"},
+    {tiles:"111 333 3333 5555",value:"X 25",desc:"Any 2 Suits"},
+    {tiles:"NN 1111 33 5555 SS",value:"X 30",desc:"Any 1 Suit"},
+    {tiles:"113579 1111 1111",value:"X 25",desc:"Any 3 Suits"},
+    {tiles:"FFF 11 33 555 DDDD",value:"X 25",desc:"Any 1 Suit"},
+    {tiles:"11 33 111 333 5555",value:"X 25",desc:"Any 3 Suits"},
+    {tiles:"1111 33 55 77 9999",value:"X 30",desc:"Any 1 or 2 Suits"},
+    {tiles:"FF 11 33 55 111 111",value:"C 35",desc:"Any 3 Suits"},
+    {tiles:"FF 135 777 999 DDD",value:"C 30",desc:"Any 1 Suit"}
+  ]},
+  {name:"WINDS - DRAGONS",hands:[
+    {tiles:"NNNN EEE WWW SSSS",value:"X 25",desc:""},
+    {tiles:"1234 DDD DDD DDDD",value:"X 25",desc:"Any 4 Consecutive Nos."},
+    {tiles:"NNN 1111 1111 SSS",value:"X 25",desc:"Any Like Odd Nos."},
+    {tiles:"EEE 2222 2222 WWW",value:"X 25",desc:"Any Like Even Nos."},
+    {tiles:"FFF NNNN FFF DDDD",value:"X 25",desc:"Any Wind, Any Dragon"},
+    {tiles:"1 N 2 EE 3 WWW 4 SSSS",value:"X 25",desc:"Any 1 Suit"},
+    {tiles:"FF NNNN SSSS DD DD",value:"X 25",desc:"Any 2 Dragons"},
+    {tiles:"NN EEE 2026 WWW SS",value:"C 30",desc:"Any 1 Suit"}
+  ]},
+  {name:"369",hands:[
+    {tiles:"333 666 6666 9999",value:"X 25",desc:"Any 2 or 3 Suits"},
+    {tiles:"33 66 333 666 9999",value:"X 25",desc:"Any 3 Suits"},
+    {tiles:"FFF 33 666 99 DDDDD",value:"X 25",desc:"1 Suit with Dragon"},
+    {tiles:"33 66 666 999 NEWS",value:"X 30",desc:"Any 2 Suits"},
+    {tiles:"FF 3369 3333 3333",value:"X 25",desc:"Any 3 Suits"},
+    {tiles:"FF 333 666 999 369",value:"C 30",desc:"Any 2 Suits"}
+  ]},
+  {name:"SINGLES AND PAIRS",hands:[
+    {tiles:"NN EE WW SS 1D 1D 1D",value:"C 50",desc:"Any 3 Suits"},
+    {tiles:"2 4 66 88 2 4 66 88 88",value:"C 50",desc:"Any 3 Suits"},
+    {tiles:"FF 3369 3669 3699",value:"C 50",desc:"Any 3 Suits"},
+    {tiles:"11 22 33 44 55 66 77",value:"C 50",desc:"Any 1 Suit"},
+    {tiles:"11 357 99 11 357 99",value:"C 50",desc:"Any 2 Suits"},
+    {tiles:"FF 2026 2026 2026",value:"C 75",desc:"Any 3 Suits"}
+  ]}
+];
+
+const STORAGE_KEY = "nmjl_2026_tracker_multi_select_v3";
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+
+function idFor(section, idx){ return `${section}__${idx}`; }
+function sanitizeSearch(value){ return value.toUpperCase().replace(/[^A-Z0-9 ]/g,''); }
+
+function matchesSearch(sectionName, hand, query, lineNumber){
+  if(!query) return true;
+  const hay = [sectionName, String(lineNumber), hand.tiles, hand.value, hand.desc].join(" ").toUpperCase();
+  return hay.includes(query);
+}
+
+function persist(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function applyRowClasses(row, saved){
+  row.classList.toggle("working", !!saved.working);
+  row.classList.toggle("checked", !!saved.checked && !saved.working);
+}
+
+function render(){
+  const app = document.getElementById("app");
+  const q = document.getElementById("search").value.trim().toUpperCase();
+  app.innerHTML = "";
+
+  sections.forEach(section => {
+    const matched = section.hands
+      .map((hand, idx) => ({hand, idx}))
+      .filter(({hand, idx}) => matchesSearch(section.name, hand, q, idx + 1));
+
+    if(!matched.length) return;
+
+    const sectionEl = document.createElement("div");
+    sectionEl.className = "section";
+
+    const header = document.createElement("div");
+    header.className = "section-header";
+    header.textContent = section.name;
+    sectionEl.appendChild(header);
+
+    matched.forEach(({hand, idx}) => {
+      const id = idFor(section.name, idx);
+      const saved = state[id] || {working:false, checked:false};
+
+      const row = document.createElement("div");
+      row.className = "hand";
+      applyRowClasses(row, saved);
+
+      row.innerHTML = `
+        <div class="line-num">${idx + 1}</div>
+        <input class="check" type="checkbox" ${saved.checked ? "checked" : ""} aria-label="Completed">
+        <div class="content">
+          <div class="tiles">${hand.tiles}</div>
+          ${hand.desc ? `<div class="desc">${hand.desc}</div>` : ``}
+        </div>
+        <div class="value ${hand.value.startsWith("C") ? "c" : "x"}">${hand.value}</div>
+      `;
+
+      const checkbox = row.querySelector(".check");
+
+      checkbox.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+
+      checkbox.addEventListener("change", () => {
+        state[id] = state[id] || {};
+        state[id].checked = checkbox.checked;
+        applyRowClasses(row, state[id]);
+        persist();
+        maybeCelebrate();
+      });
+
+      row.addEventListener("click", () => {
+        state[id] = state[id] || {};
+        state[id].working = !state[id].working;
+        applyRowClasses(row, state[id]);
+        persist();
+        maybeCelebrate();
+      });
+
+      sectionEl.appendChild(row);
+    });
+
+    app.appendChild(sectionEl);
+  });
+}
+
+document.getElementById("search").addEventListener("input", (e) => {
+  const clean = sanitizeSearch(e.target.value);
+  if (e.target.value !== clean) e.target.value = clean;
+  render();
+});
+
+document.getElementById("clearSearchBtn").addEventListener("click", () => {
+  document.getElementById("search").value = "";
+  render();
+});
+
+document.getElementById("clearCompletedBtn").addEventListener("click", () => {
+  const ok = confirm("This will reset all checked-box history. Do you want to proceed?");
+  if(!ok) return;
+  Object.keys(state).forEach(k => { if(state[k]) state[k].checked = false; });
+  persist();
+  render();
+  maybeCelebrate();
+});
+
+document.getElementById("clearWorkingBtn").addEventListener("click", () => {
+  Object.keys(state).forEach(k => { if(state[k]) state[k].working = false; });
+  persist();
+  render();
+  maybeCelebrate();
+});
+
+document.getElementById("infoIcon").addEventListener("click", () => {
+  alert("Tap any line to turn it yellow as a current hand. Tap it again to turn it back off. Use the checkboxes to track your progress for the year.
+
+<b>To save your progress, save this page to your Home Screen and select “Save as Web App.”</b>");
+});
+
+
+let celebrationShown = false;
+
+function getTotals(){
+  let total = 0, done = 0;
+  sections.forEach(section => {
+    total += section.hands.length;
+    section.hands.forEach((hand, idx) => {
+      const id = idFor(section.name, idx);
+      if(state[id] && state[id].checked) done += 1;
+    });
+  });
+  return {total, done};
+}
+
+function maybeCelebrate(){
+  const overlay = document.getElementById("celebrationOverlay");
+  const {total, done} = getTotals();
+  if(total > 0 && done === total && !celebrationShown){
+    celebrationShown = true;
+    overlay.style.display = "flex";
+    launchFireworks();
+    setTimeout(() => {
+      overlay.style.display = "none";
+    }, 2600);
+  } else if(done < total) {
+    celebrationShown = false;
+  }
+}
+
+function launchFireworks(){
+  const canvas = document.getElementById("fireworksCanvas");
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  canvas.style.display = "block";
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const particles = [];
+  function burst(x, y){
+    for(let i = 0; i < 42; i++){
+      const angle = (Math.PI * 2 * i) / 42;
+      const speed = 2 + Math.random() * 3.5;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 50 + Math.random() * 25,
+        r: 2 + Math.random() * 3
+      });
+    }
+  }
+
+  burst(w * 0.22, h * 0.35);
+  burst(w * 0.5, h * 0.25);
+  burst(w * 0.78, h * 0.35);
+
+  let frame = 0;
+  function tick(){
+    ctx.clearRect(0,0,w,h);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.03;
+      p.life -= 1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${(p.x + p.y + frame*5) % 360}, 90%, 55%, ${Math.max(p.life / 70, 0)})`;
+      ctx.fill();
+    });
+    for(let i = particles.length - 1; i >= 0; i--){
+      if(particles[i].life <= 0) particles.splice(i, 1);
+    }
+    frame++;
+    if(frame < 90 || particles.length){
+      requestAnimationFrame(tick);
+    } else {
+      canvas.style.display = "none";
+      ctx.clearRect(0,0,w,h);
+    }
+  }
+  tick();
+}
+
+window.addEventListener("resize", () => {
+  const canvas = document.getElementById("fireworksCanvas");
+  if(canvas) canvas.style.display = "none";
+});
+
+maybeCelebrate();
+
+let celebrationShown = false;
+
+function getCompletionTotals(){
+  let total = 0;
+  let done = 0;
+  sections.forEach(section => {
+    total += section.hands.length;
+    section.hands.forEach((hand, idx) => {
+      const id = idFor(section.name, idx);
+      if(state[id] && state[id].checked) done += 1;
+    });
+  });
+  return { total, done };
+}
+
+function maybeCelebrate(){
+  const { total, done } = getCompletionTotals();
+  if(total > 0 && done === total && !celebrationShown){
+    celebrationShown = true;
+    showCelebration();
+  } else if(done < total){
+    celebrationShown = false;
+  }
+}
+
+function vibrateCelebrate(){
+  if(navigator.vibrate){
+    navigator.vibrate([120, 80, 140, 80, 180]);
+  }
+}
+
+function showCelebration(){
+  const overlay = document.getElementById("celebrationOverlay");
+  overlay.style.display = "flex";
+  overlay.setAttribute("aria-hidden", "false");
+  launchFireworks();
+  vibrateCelebrate();
+  setTimeout(() => {
+    overlay.style.display = "none";
+    overlay.setAttribute("aria-hidden", "true");
+  }, 2600);
+}
+
+function launchFireworks(){
+  const canvas = document.getElementById("fireworksCanvas");
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  canvas.style.display = "block";
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const colors = ["#ff4d6d", "#ffbe0b", "#3a86ff", "#8338ec", "#06d6a0"];
+  const particles = [];
+
+  function burst(x, y){
+    for(let i = 0; i < 42; i++){
+      const angle = (Math.PI * 2 * i) / 42 + Math.random() * 0.2;
+      const speed = 2 + Math.random() * 4;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 50 + Math.random() * 20,
+        size: 2 + Math.random() * 3,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      });
+    }
+  }
+
+  burst(width * 0.25, height * 0.35);
+  burst(width * 0.5, height * 0.25);
+  burst(width * 0.75, height * 0.4);
+
+  let frame = 0;
+  function animate(){
+    ctx.clearRect(0, 0, width, height);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.life -= 1;
+      ctx.globalAlpha = Math.max(p.life / 70, 0);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    for(let i = particles.length - 1; i >= 0; i--){
+      if(particles[i].life <= 0) particles.splice(i, 1);
+    }
+    frame += 1;
+    if(frame < 90 && particles.length){
+      requestAnimationFrame(animate);
+    } else {
+      canvas.style.display = "none";
+      ctx.clearRect(0, 0, width, height);
+    }
+  }
+  animate();
+}
+
+
+render();
+</script>
+
+<div style="text-align:center;margin-top:40px;font-size:12px;color:#777;">
+  Created by Ashley Hall
+</div>
+
+
+<canvas id="fireworksCanvas"></canvas>
+<div id="celebrationOverlay">
+  <div id="celebrationBox">
+    <h2>🎉 Congratulations! 🎉</h2>
+    <p>You checked every hand!</p>
+  </div>
+</div>
+
+
+<canvas id="fireworksCanvas"></canvas>
+<div id="celebrationOverlay" aria-hidden="true">
+  <div id="celebrationBox">
+    <h2>🎉 Congratulations! 🎉</h2>
+    <p>You checked every hand for the year!</p>
+  </div>
+</div>
+
+</body>
+</html>
